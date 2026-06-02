@@ -1,0 +1,13 @@
+# Config Streamlit pour l'hébergement (Streamlit Community Cloud).
+# Ne contient AUCUN secret (les secrets vont dans l'onglet "Secrets" du site).
+[server]
+# Désactive la protection XSRF : sinon l'upload de fichiers .fit échoue
+# derrière le proxy de Streamlit Cloud (AxiosError: Network Error), surtout
+# sur mobile. L'app reste protégée par la connexion Google (app privée).
+enableXsrfProtection = false
+enableCORS = false
+# Taille max d'un upload en Mo (un .fit fait quelques Mo, 50 est large).
+maxUploadSize = 50
+
+[browser]
+gatherUsageStats = false
