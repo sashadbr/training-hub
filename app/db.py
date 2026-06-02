@@ -282,7 +282,15 @@ class _PgConnection:
         import psycopg2  # noqa: PLC0415
         import psycopg2.extras  # noqa: PLC0415
         self._extras = psycopg2.extras
-        self._conn = psycopg2.connect(dsn)
+        # Connexion DIRECTE (non poolée) : on retire "-pooler" du host. Le pooler
+        # (pgbouncer) gardait des transactions « idle » côté serveur quand un
+        # upload était interrompu → verrous bloqués et écran figé. La connexion
+        # directe se ferme net à la déconnexion et autorise statement_timeout.
+        dsn = dsn.replace("-pooler.", ".")
+        self._conn = psycopg2.connect(
+            dsn, connect_timeout=10,
+            options="-c statement_timeout=60000",  # 60 s max par requête
+        )
 
     def _new_cursor(self):
         return self._conn.cursor(cursor_factory=self._extras.RealDictCursor)
@@ -293,8 +301,12 @@ class _PgConnection:
         return _PgCursor(cur)
 
     def executemany(self, sql: str, seq):
+        # execute_batch regroupe les lignes en quelques aller-retours réseau
+        # (au lieu d'un par ligne) : insérer les ~8000 points d'un .fit passe
+        # ainsi de plusieurs minutes à quelques secondes.
         cur = self._new_cursor()
-        cur.executemany(_translate(sql), [tuple(p) for p in seq])
+        self._extras.execute_batch(
+            cur, _translate(sql), [tuple(p) for p in seq], page_size=1000)
         return _PgCursor(cur)
 
     def executescript(self, script: str):
