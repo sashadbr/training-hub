@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import calendar as _cal
+import os
 import tempfile
 from datetime import date, timedelta
 from pathlib import Path
@@ -50,6 +51,37 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
+
+def _require_password() -> None:
+    """Verrou par mot de passe pour l'hébergement public.
+
+    Le mot de passe attendu vient des secrets Streamlit (clé ``APP_PASSWORD``)
+    ou de la variable d'environnement ``APP_PASSWORD``. Si aucun n'est défini
+    (cas de l'usage local sur le Mac), l'accès reste libre.
+    """
+    expected = ""
+    try:
+        if "APP_PASSWORD" in st.secrets:
+            expected = str(st.secrets["APP_PASSWORD"])
+    except Exception:
+        pass
+    expected = expected or os.environ.get("APP_PASSWORD", "")
+    if not expected or st.session_state.get("_auth_ok"):
+        return
+    st.title("🔒 Training Hub")
+    st.caption("Entre le mot de passe pour accéder à ton coach.")
+    pwd = st.text_input("Mot de passe", type="password",
+                        label_visibility="collapsed")
+    if st.button("Entrer", type="primary"):
+        if pwd == expected:
+            st.session_state["_auth_ok"] = True
+            st.rerun()
+        else:
+            st.error("Mot de passe incorrect.")
+    st.stop()
+
+
+_require_password()
 
 SPORT_ICON = {"running": "🏃", "cycling": "🚴", "trail": "⛰️"}
 
