@@ -1,0 +1,10 @@
+# Données personnelles & secrets — jamais versionnés
+.venv/
+data/
+inbox/
+reports/
+__pycache__/
+*.pyc
+.streamlit/
+.DS_Store
+**/.DS_Store

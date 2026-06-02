@@ -1,0 +1,8 @@
+garmin-fit-sdk>=21.0
+pandas>=2.0
+plotly>=5.0
+streamlit>=1.50
+requests>=2.31
+psycopg2-binary>=2.9   # Postgres (hébergement Streamlit Cloud)
+# Outil de test uniquement (génération de .fit synthétiques) :
+# fit-tool>=0.9
