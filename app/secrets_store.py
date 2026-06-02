@@ -32,7 +32,7 @@ SECRETS_PATH = DATA_DIR / "secrets.json"
 DEFAULTS = {
     "deepseek_api_key": "",
     "deepseek_base_url": "https://api.deepseek.com",
-    "deepseek_model": "deepseek-chat",
+    "deepseek_model": "deepseek-v4-pro",
 }
 
 
